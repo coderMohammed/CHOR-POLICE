@@ -12,7 +12,7 @@ var enemyLives = 3
 var invisibleGround,invisibleGround2,invisibleGround3;
 var PLAY = 0;
 var gameStateL2 = PLAY;
-var score = 175;
+var score = 0;
 var gameOverBg,gameOverBgImg;
 var mainVillain,mainVillainImg;
 var newPlayer,newPlayerImg
@@ -69,7 +69,7 @@ function draw()
 
     if(!isLevel1){
       isLevel1 = true;
-      bg2 = createSprite(500,500);
+      bg2 = createSprite(200,200);
       bg2.addImage("levelStart",bg2Img);
       bg2.scale = 2.2
       boy.depth = bg2.depth+1;
@@ -125,15 +125,8 @@ function draw()
       newPlayer = createSprite(80,310);
       newPlayer.addImage("player2",newPlayerImg);
       newPlayer.scale = 0.45;
-      lives = 3
-      invisibleGround2 = createSprite(500,30,100,20);
-      invisibleGround2.visible = false
-      invisibleGround3 = createSprite(500,400,100,20);
-      invisibleGround3.visible = false
+      lives = 3;
     }
-
-    mainVillain.bounceOff(invisibleGround2)
-    mainVillain.bounceOff(invisibleGround3)
 
     if(keyDown("space")){
       shootBullet();
