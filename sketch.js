@@ -19,6 +19,7 @@ var newPlayer,newPlayerImg
 var winner,winnerImg;
 var playerBullet,enemyBullet;
 var playerGrp,enemyGrp;
+var playBtn
 
 
 function preload(){
@@ -34,7 +35,7 @@ function preload(){
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
-  boy = createSprite(80,550);
+  boy = createSprite(80,height-50);
   boy.addImage("run",boyImage);
   boy.scale = 0.2;
   boy.debug = true;
@@ -52,137 +53,132 @@ function draw()
 
   background("green");
   if(gameState === BEGIN){
-    textSize(30);
-    text("Press S to start",200,200);
-        if(keyDown("s")){
-      gameState = LEVEL1;
+    playBtn = createButton("START THE GAME");
+    playBtn.position(200,200);
+    playBtn.mousePressed(start)
     }
-  }
 
-  else if(gameState === LEVEL1){
+    else if(gameState === LEVEL1){
   
-    if(keyDown("space")){
-      boy.y -= 18;
-    }
-
-
-
-    if(!isLevel1){
-      isLevel1 = true;
-      bg2 = createSprite(200,200);
-      bg2.addImage("levelStart",bg2Img);
-      bg2.scale = 2.2
-      boy.depth = bg2.depth+1;
-      boy.y = 325
-      invisibleGround = createSprite(80,400,100,20);
-      invisibleGround.visible = false;
-  
-    }
-
-
-    if(frameCount%150===0){
-      spawnBullets()
-    }
-
-    if(frameCount%80===0){
-      spawnTreasure()
-    }
-    boy.collide(invisibleGround);
-
-    boy.velocityY += 0.6;
-
-     bg2.velocityX = -2
-    if(bg2.x <= 0){
-      bg2.x = width/2
-    }
-    
-      if(boy.isTouching(bulletGroup)){
-        lives -= 1;
-        bulletGroup.destroyEach();
-        if(lives===0){
-          gameState=END;
-        }
+      if(keyDown("space")){
+        boy.y -= 18;
       }
   
-      if(boy.isTouching(treasureGroup)){
-        score += 25;
-        treasureGroup.destroyEach();
-        if(score >= 200){
-          gameState = LEVEL2;
-        }
-        
+  
+  
+      if(!isLevel1){
+        isLevel1 = true;
+        playBtn.visible = false;
+        bg2 = createSprite(width/2,height/2);
+        bg2.addImage("levelStart",bg2Img);
+        bg2.scale = 2.2
+        boy.depth = bg2.depth+1;
+        boy.y = 500
+        invisibleGround = createSprite(80,height-150,100,20);
+        invisibleGround.visible = false;
+      }
+  
+      boy.collide(invisibleGround);
+  
+      if(frameCount%150===0){
+        spawnBullets()
+      }
+  
+      if(frameCount%80===0){
+        spawnTreasure()
+      }
+  
+      boy.velocityY += 0.6;
+  
+       bg2.velocityX = -2
+      if(bg2.x <= 0){
+        bg2.x = width/2
       }
       
-  }
-  else if(gameState === LEVEL2){
-    if(!isLevel2){
-      isLevel2 = true;
-      treasureGroup.destroyEach();
+        if(boy.isTouching(bulletGroup)){
+          lives -= 1;
+          bulletGroup.destroyEach();
+          if(lives===0){
+            gameState=END;
+          }
+        }
+    
+        if(boy.isTouching(treasureGroup)){
+          score += 25;
+          treasureGroup.destroyEach();
+          if(score >= 200){
+            gameState = LEVEL2;
+          }
+          
+        }
+        
+    }
+    else if(gameState === LEVEL2){
+      if(!isLevel2){
+        isLevel2 = true;
+        treasureGroup.destroyEach();
+        boy.destroy()
+        mainVillain = createSprite(900,275);
+        mainVillain.addImage("superVillain",mainVillainImg)
+        mainVillain.scale = 0.4;
+        newPlayer = createSprite(80,310);
+        newPlayer.addImage("player2",newPlayerImg);
+        newPlayer.scale = 0.45;
+        lives = 3;
+      }
+  
+      if(keyDown("space")){
+        shootBullet();
+      }
+  
+      if(frameCount%100===0){
+        spawnEnemyBullets();
+      }
+      
+      newPlayer.collide(invisibleGround)
+      newPlayer.y = World.mouseY;
+  
+      
+  
+      bg2.velocityX = 0;
+  
+      if(newPlayer.isTouching(enemyGrp)){
+        lives -= 1;
+        enemyGrp.destroyEach()
+      if(lives === 0){
+        gameState = END;
+      }
+      }
+  
+      if(mainVillain.isTouching(playerGrp)){
+        enemyLives -= 1;
+        playerGrp.destroyEach()
+      if(enemyLives === 0){
+        gameState = WIN;
+      }
+      }
+  
+    }
+  
+    else if(gameState === WIN){
+      winner = createSprite(300,300,300,300);
+      winner.addImage("win",winnerImg);
+      winner.scale = 0.99
+      bg2.destroy();
+      newPlayer.destroy();
+      mainVillain.destroy();
+    }
+  
+    else if(gameState === END){ 
+      //console.log("END");
+      bg2.destroy();
       boy.destroy()
-      mainVillain = createSprite(500,275);
-      mainVillain.addImage("superVillain",mainVillainImg)
-      mainVillain.scale = 0.4;
-      newPlayer = createSprite(80,310);
-      newPlayer.addImage("player2",newPlayerImg);
-      newPlayer.scale = 0.45;
-      lives = 3;
+      gameOverBg = createSprite(300,300);
+      gameOverBg.addImage("GAmeOVer",gameOverBgImg);
+      gameOverBg.scale = 1.5;
     }
 
-    if(keyDown("space")){
-      shootBullet();
-    }
-
-    if(frameCount%150===0){
-      spawnEnemyBullets();
-    }
-    
-    newPlayer.collide(invisibleGround)
-    newPlayer.y = mouseY
-
-    
-
-    bg2.velocityX = 0;
-
-    if(newPlayer.isTouching(enemyGrp)){
-      lives -= 1;
-      enemyGrp.destroyEach()
-    if(lives === 0){
-      gameState = END;
-    }
-    }
-
-    if(mainVillain.isTouching(playerGrp)){
-      enemyLives -= 1;
-      playerGrp.destroyEach()
-    if(enemyLives === 0){
-      gameState = WIN;
-    }
-    }
-
-  }
-
-  else if(gameState === WIN){
-    winner = createSprite(300,300,300,300);
-    winner.addImage("win",winnerImg);
-    winner.scale = 0.99
-    bg2.destroy();
-    newPlayer.destroy();
-    mainVillain.destroy();
-  }
-
-  else if(gameState === END){ 
-    //console.log("END");
-    bg2.destroy();
-    boy.destroy()
-    gameOverBg = createSprite(300,300);
-    gameOverBg.addImage("GAmeOVer",gameOverBgImg);
-    gameOverBg.scale = 1.5;
-  }
-
-
-
-
-  drawSprites();
+    drawSprites();
 
   fill("red");
   textSize(20);
@@ -195,7 +191,10 @@ function draw()
   fill("red");
   textSize(20);
   text("SCORE: "+score,450,50);
-}
+
+  }
+
+  
 
 function playerControls(){
   if(keyDown(UP_ARROW)){
@@ -213,9 +212,6 @@ function playerControls(){
   if(keyDown(RIGHT_ARROW)){
     boy.x += 15;
   }
-  
- 
-  
 
 }
 
@@ -260,7 +256,7 @@ function createEnemy(){
 function spawnBullets(){
   bullet = createSprite(610,200,50,50);
   bullet.velocityX = -4
-  bullet.y = Math.round(random(250,350))
+  bullet.y = Math.round(random(250,550))
   bullet.addImage("shoot",bulletImage);
   bullet.rotation = 180;
   bullet.scale = 0.1;
@@ -271,7 +267,7 @@ function spawnBullets(){
 function spawnTreasure(){
   treasure = createSprite(610,200,50,50);
   treasure.velocityX = -4
-  treasure.y = Math.round(random(250,350))
+  treasure.y = Math.round(random(250,550))
   treasure.addImage("treasure",treasureImage);
   treasure.scale = 0.1;
   treasure.lifetime = 610/4;
@@ -289,11 +285,16 @@ function shootBullet(){
 
 function spawnEnemyBullets(){
   enemyBullet = createSprite(610,200,50,50);
-  enemyBullet.velocityX = -7
+  enemyBullet.velocityX = -18
   enemyBullet.y = Math.round(random(250,350))
   enemyBullet.addImage("shoot",bulletImage);
   enemyBullet.rotation = 180;
   enemyBullet.scale = 0.1;
   enemyBullet.lifetime = 610/7;
   enemyGrp.add(enemyBullet);
+}
+
+function start(){
+  gameState = LEVEL1;
+
 }
